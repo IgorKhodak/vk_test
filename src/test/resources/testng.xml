@@ -1,0 +1,13 @@
+<suite name="Suite World">
+    <test name="Test Name">
+        <groups>
+            <run>
+                <include name="smoke" />
+<!--                <exclude name="likes" />-->
+            </run>
+        </groups>
+        <classes>
+            <class name="ru.vk.likes.LikesTest"/>
+        </classes>
+    </test>
+</suite>
