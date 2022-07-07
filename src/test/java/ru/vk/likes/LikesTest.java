@@ -180,7 +180,7 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
             dataProviderClass = LikesDataProvider.class,
             priority = 1
     )
-    void isLikedThePostTest(int itemId, BoolInt boolInt) {
+    void isLikedThePostTest(int itemId, BoolInt expectedBoolInt) {
         try {
             UserActor actor = UserProvider.getUserActor(authResponse);
 
@@ -190,7 +190,7 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
 
 
             assertThat(actualResponse.getLiked()).as("check like on the item")
-                    .isEqualTo(boolInt);
+                    .isEqualTo(expectedBoolInt);
             assertThat(actualResponse.getCopied()).as("check copies of the item")
                     .isEqualTo(BoolInt.NO);
 
