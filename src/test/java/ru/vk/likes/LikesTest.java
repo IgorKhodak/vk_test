@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.Test;
 import ru.vk.AppConfig;
-import ru.vk.LikesDataProvider;
+import ru.vk.dataProvider.LikesDataProvider;
 import ru.vk.userProvider.UserProvider;
 
 import java.util.Collections;

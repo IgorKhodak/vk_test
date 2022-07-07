@@ -1,4 +1,4 @@
-package ru.vk;
+package ru.vk.dataProvider;
 
 import com.vk.api.sdk.objects.base.BoolInt;
 
