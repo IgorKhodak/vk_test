@@ -1,5 +1,5 @@
-<suite name="Suite World">
-    <test name="Test Name">
+<suite name="Likes test suite">
+    <test name="Likes">
         <groups>
             <define name="include-groups">
                 <include name="likes" />
