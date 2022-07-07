@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 import ru.vk.AppConfig;
 import ru.vk.dataProvider.LikesDataProvider;
 import ru.vk.userProvider.UserProvider;
+
 import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 
