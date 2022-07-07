@@ -1,9 +1,14 @@
 <suite name="Suite World">
     <test name="Test Name">
         <groups>
-            <run>
+            <define name="include-groups">
+                <include name="likes" />
+            </define>
+            <define name="exclude-groups">
                 <include name="smoke" />
-<!--                <exclude name="likes" />-->
+            </define>
+            <run>
+                <include name="include-groups" />
             </run>
         </groups>
         <classes>

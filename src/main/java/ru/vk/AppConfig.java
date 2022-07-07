@@ -23,30 +23,22 @@ public class AppConfig {
 
     @Bean
     public UserAuthResponse userAuthResponse(
-                                 @Value("${user.app-id}") int appId,
-                                 @Value("${user.client-secret}") String clientSecret,
-                                 @Value("${uri.redirect}") String redirectUri) {
+            @Value("${user.app-id}") int appId,
+            @Value("${user.client-secret}") String clientSecret,
+            @Value("${uri.redirect}") String redirectUri,
+            @Value("${user.code}") String code
+    ) {
         UserAuthResponse authResponse = null;
         try {
             authResponse = vkApiClient().oAuth()
-                    .userAuthorizationCodeFlow(appId, clientSecret, redirectUri, getCode())
+                    .userAuthorizationCodeFlow(appId, clientSecret, redirectUri, code)
                     .execute();
         } catch (Exception exception) {
-            LOG.warn("API Server error");
+            LOG.warn("API Server error. Check your code !!!");
             throw new RuntimeException(exception);
         }
         LOG.info("Authorization Code Flow for userId: " + authResponse.getUserId() + " successfully done");
         return authResponse;
     }
-
-
-    /**
-     * For Authorization Code Flow you must have code
-     * @return code for your authorization
-     */
-    private String getCode() {
-        return "d09ebd918ac84ad75e";
-    }
-
 
 }

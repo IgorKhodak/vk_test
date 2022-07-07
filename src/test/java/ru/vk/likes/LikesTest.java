@@ -4,6 +4,7 @@ import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.UserActor;
 import com.vk.api.sdk.exceptions.ApiAccessException;
 import com.vk.api.sdk.exceptions.ApiParamException;
+import com.vk.api.sdk.exceptions.ApiPrivateProfileException;
 import com.vk.api.sdk.objects.UserAuthResponse;
 import com.vk.api.sdk.objects.base.BoolInt;
 import com.vk.api.sdk.objects.likes.Type;
@@ -35,11 +36,11 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
     private UserAuthResponse authResponse;
 
     @Test(
-            description = "Add new like",
+            description = "Add item to current users likes list",
             groups = {"smoke", "likes"},
             priority = 0
     )
-    void addLikeToThePostTest() {
+    void addLikeToPostTest() {
         try {
             UserActor actor = UserProvider.getUserActor(authResponse);
 
@@ -48,8 +49,6 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
                     .ownerId(actor.getId())
                     .execute();
 
-            assertThat(actualResponse.getLikes()).as("")
-                    .isNotNull();
             assertThat(actualResponse.getLikes())
                     .as("check adding like to userId = %s", actor.getId())
                     .isEqualTo(NumberUtils.INTEGER_ONE);
@@ -60,35 +59,34 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
     }
 
     @Test(
-            description = "Add new like",
-            groups = {"smoke", "likes"},
+            description = "Add item to current users likes list with private owner",
+            groups = {"likes"},
             expectedExceptions = Exception.class
-//            expectedExceptionsMessageRegExp = "com.vk.api.sdk.exceptions.ApiParamException: One of the parameters specified was missing or invalid (100): One of the parameters specified was missing or invalid: object not found"
     )
-    void addLikeToThePostNegativeTest() {
+    void addLikeToPostWithPrivateOwnerErrorTest() {
         try {
             UserActor actor = UserProvider.getUserActor(authResponse);
 
-             vkApi.likes()
-                    .add(actor, Type.AUDIO, DEFAULT_ITEM_ID)
-                    .ownerId(actor.getId())
+            vkApi.likes()
+                    .add(actor, Type.POST, DEFAULT_ITEM_ID)
+                    .ownerId(2)
                     .execute();
 
         } catch (Exception actualException) {
-            assertThat(actualException).as("")
-                            .isInstanceOf(ApiParamException.class);
-            assertThat(((ApiParamException) actualException).getCode()).as("")
-                    .isEqualTo(100);
+            assertThat(actualException).as("check exception name")
+                    .isInstanceOf(ApiPrivateProfileException.class);
+            assertThat(((ApiPrivateProfileException) actualException).getCode()).as("check code exception")
+                    .isEqualTo(30);
             throw new RuntimeException(actualException);
         }
     }
 
     @Test(
-            description = "Delete likes",
+            description = "Delete item from the current users likes list",
             groups = {"smoke", "likes"},
             priority = 3
     )
-     void deleteLikeTest() {
+    void deleteLikeFromThePostTest() {
         try {
             UserActor actor = UserProvider.getUserActor(authResponse);
 
@@ -98,7 +96,7 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
                     .execute();
 
             assertThat(actualResponse.getLikes())
-                    .as("check deleting like to userId = %s", actor.getId())
+                    .as("check deleting like from userId = %s", actor.getId())
                     .isEqualTo(NumberUtils.INTEGER_ZERO);
         } catch (Exception actualException){
             throw new RuntimeException(actualException);
@@ -106,11 +104,11 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
     }
 
     @Test(
-            description = "Delete likes",
-            groups = {"smoke", "likes"},
+            description = "Delete nonexistent item from the current users likes list",
+            groups = {"likes"},
             expectedExceptions = Exception.class
     )
-    void deleteLikeNegativeTest() {
+    void deleteLikeFromThePostErrorTest() {
         try {
             UserActor actor = UserProvider.getUserActor(authResponse);
 
@@ -120,20 +118,20 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
                     .execute();
 
         } catch (Exception actualException) {
-            assertThat(actualException).as("")
+            assertThat(actualException).as("check exception name")
                     .isInstanceOf(ApiAccessException.class);
-            assertThat(((ApiAccessException) actualException).getCode()).as("")
+            assertThat(((ApiAccessException) actualException).getCode()).as("check code exception")
                     .isEqualTo(15);
             throw new RuntimeException(actualException);
         }
     }
 
     @Test(
-            description = "get likes list",
+            description = "Get likes owners of the item",
             groups = {"smoke", "likes"},
             priority = 2
     )
-     void getLikesListTest() {
+    void getLikesOwnersTest() {
         try {
             UserActor actor = UserProvider.getUserActor(authResponse);
 
@@ -142,9 +140,9 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
                     .itemId(DEFAULT_ITEM_ID)
                     .execute();
 
-            assertThat(actualResponse.getCount()).as("")
+            assertThat(actualResponse.getCount()).as("check likes count")
                     .isEqualTo(NumberUtils.INTEGER_ONE);
-            assertThat(actualResponse.getItems()).as("")
+            assertThat(actualResponse.getItems()).as("check likes owners")
                     .isEqualTo(Collections.singletonList(actor.getId()));
 
         } catch (Exception actualException){
@@ -152,12 +150,13 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
         }
     }
 
+    // bug of specification !!! The field item_id isn't marked as a required !!!
     @Test(
-            description = "get likes list",
-            groups = {"smoke", "likes"},
+            description = "Get likes owners with empty itemId",
+            groups = {"likes"},
             expectedExceptions = Exception.class
     )
-    void getLikesListNegativeTest() {
+    void getLikesOwnersWithoutItemIdErrorTest() {
         try {
             UserActor actor = UserProvider.getUserActor(authResponse);
 
@@ -166,22 +165,22 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
                     .execute();
 
         } catch (Exception actualException) {
-            assertThat(actualException).as("")
+            assertThat(actualException).as("check exception name")
                     .isInstanceOf(ApiParamException.class);
-            assertThat(((ApiParamException) actualException).getCode()).as("")
+            assertThat(((ApiParamException) actualException).getCode()).as("check code exception")
                     .isEqualTo(100);
             throw new RuntimeException(actualException);
         }
     }
 
     @Test(
-            description = "is likes",
+            description = "Is current user likes this itemId",
             groups = {"smoke", "likes"},
-            dataProvider = "isLikedWithDiffItemId",
+            dataProvider = "isLikedThePost",
             dataProviderClass = LikesDataProvider.class,
             priority = 1
     )
-     void isLikeTest(int itemId, BoolInt boolInt) {
+    void isLikedThePostTest(int itemId, BoolInt boolInt) {
         try {
             UserActor actor = UserProvider.getUserActor(authResponse);
 
@@ -189,14 +188,11 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
                     .isLiked(actor, Type.POST, itemId)
                     .execute();
 
-//            assertThat(actualResponse.isLiked()).as("")
-//                            .isTrue();
-            assertThat(actualResponse.getLiked()).as("")
-                            .isEqualTo(boolInt);
-            assertThat(actualResponse.isCopied()).as("")
-                            .isFalse();
-            assertThat(actualResponse.getCopied()).as("")
-                            .isEqualTo(BoolInt.NO);
+
+            assertThat(actualResponse.getLiked()).as("check like on the item")
+                    .isEqualTo(boolInt);
+            assertThat(actualResponse.getCopied()).as("check copies of the item")
+                    .isEqualTo(BoolInt.NO);
 
         } catch (Exception actualException){
             throw new RuntimeException(actualException);
@@ -204,23 +200,23 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
     }
 
     @Test(
-            description = "is likes",
-            groups = {"smoke", "likes"},
+            description = "Is private owner likes this itemId",
+            groups = {"likes"},
             expectedExceptions = Exception.class
     )
-    void isLikeNegativeTest() {
+    void isLikedThePostErrorTest() {
         try {
             UserActor actor = UserProvider.getUserActor(authResponse);
 
-           vkApi.likes()
+            vkApi.likes()
                     .isLiked(actor, Type.POST, DEFAULT_ITEM_ID)
                     .ownerId(1)
                     .execute();
 
         } catch (Exception actualException) {
-            assertThat(actualException).as("")
+            assertThat(actualException).as("check exception name")
                     .isInstanceOf(ApiAccessException.class);
-            assertThat(((ApiAccessException) actualException).getCode()).as("")
+            assertThat(((ApiAccessException) actualException).getCode()).as("check code exception")
                     .isEqualTo(15);
             throw new RuntimeException(actualException);
         }

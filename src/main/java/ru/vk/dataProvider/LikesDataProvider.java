@@ -10,7 +10,7 @@ import java.util.Random;
 public class LikesDataProvider {
 
     @DataProvider
-    public Object[][] isLikedWithDiffItemId() {
+    public Object[][] isLikedThePost() {
         int randomItemId = new Random().nextInt(20) + 2;
         return new Object[][] {
                 {NumberUtils.INTEGER_ONE, BoolInt.YES},
