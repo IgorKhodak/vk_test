@@ -188,7 +188,6 @@ public class LikesTest extends AbstractTestNGSpringContextTests {
                     .isLiked(actor, Type.POST, itemId)
                     .execute();
 
-
             assertThat(actualResponse.getLiked()).as("check like on the item")
                     .isEqualTo(expectedBoolInt);
             assertThat(actualResponse.getCopied()).as("check copies of the item")
